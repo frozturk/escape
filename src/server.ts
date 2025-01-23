@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import { BinanceAPI } from './services/binance-api';
+import { BinanceAPI, BinanceOrder } from './services/binance-api';
 
 dotenv.config();
 
@@ -79,9 +79,21 @@ app.post('/api/close-position', async (req: Request<{}, {}, { coinName: string }
 app.get('/api/positions', async (_req: Request, res: Response) => {
     try {
         const positions = await binanceApi.getAllPositions();
+        const openOrders = await binanceApi.getOpenOrders();
+        
+        // Group orders by symbol
+        const ordersBySymbol = openOrders.reduce((acc: { [key: string]: BinanceOrder[] }, order) => {
+            if (!acc[order.symbol]) {
+                acc[order.symbol] = [];
+            }
+            acc[order.symbol].push(order);
+            return acc;
+        }, {});
+
         res.json({
             success: true,
-            positions: positions.filter(pos => parseFloat(pos.positionAmt) !== 0)
+            positions: positions.filter(pos => parseFloat(pos.positionAmt) !== 0),
+            openOrders: ordersBySymbol
         });
     } catch (error) {
         console.error('Error fetching positions:', error);

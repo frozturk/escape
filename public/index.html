@@ -199,6 +199,39 @@
                             <div>PNL: ${parseFloat(position.unRealizedProfit).toFixed(5)}</div>
                             <div>Leverage: ${position.leverage}x</div>
                         `;
+
+                        // Add take profit orders if they exist
+                        const tpOrders = data.openOrders[position.symbol] || [];
+                        console.log(`Orders for ${position.symbol}:`, tpOrders);
+                        if (tpOrders.length > 0) {
+                            const filteredOrders = tpOrders.filter(order => {
+                                const matchesDirection = (isLong && order.side === 'SELL') || (!isLong && order.side === 'BUY');
+                                console.log(`Order ${order.orderId}:`, {
+                                    type: order.type,
+                                    reduceOnly: order.reduceOnly,
+                                    side: order.side,
+                                    matchesDirection,
+                                    isLong
+                                });
+                                return order.type === 'LIMIT' && 
+                                       order.reduceOnly === true && 
+                                       matchesDirection;
+                            });
+                            
+                            console.log('Filtered orders:', filteredOrders);
+                            const tpOrdersHtml = filteredOrders.map(order => `
+                                <div style="margin-top: 10px; padding: 5px; background: #f5f5f5; border-radius: 4px;">
+                                    <div>Take Profit Order:</div>
+                                    <div>Price: ${parseFloat(order.price).toFixed(5)}</div>
+                                    <div>Quantity: ${order.origQty}</div>
+                                    <div>Side: ${order.side}</div>
+                                </div>
+                            `).join('');
+                            
+                            if (tpOrdersHtml) {
+                                info.innerHTML += tpOrdersHtml;
+                            }
+                        }
                         
                         const actions = document.createElement('div');
                         actions.className = 'position-actions';

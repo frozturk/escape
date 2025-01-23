@@ -191,6 +191,14 @@ export class BinanceAPI {
         return this.makeSignedRequest('/fapi/v2/positionRisk', 'GET');
     }
 
+    async getOpenOrders(symbol?: string): Promise<BinanceOrder[]> {
+        const params: Record<string, string> = {};
+        if (symbol) {
+            params.symbol = symbol.toUpperCase();
+        }
+        return this.makeSignedRequest('/fapi/v1/openOrders', 'GET', params);
+    }
+
     async closeAllPositions(): Promise<BinanceOrder[]> {
         const positions = await this.getAllPositions();
         const closingOrders = positions

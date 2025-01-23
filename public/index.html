@@ -161,6 +161,10 @@
             font-size: 14px;
             font-weight: 500;
         }
+        .pnl-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
         .tp-orders {
             margin-top: 15px;
             padding-top: 15px;
@@ -352,7 +356,7 @@
                                 </div>
                                 <div class="detail-item">
                                     <span class="detail-label">PNL</span>
-                                    <span class="detail-value" style="color: ${parseFloat(position.unRealizedProfit) >= 0 ? '#4CAF50' : '#dc3545'}">
+                                    <span class="detail-value pnl-value" style="color: ${parseFloat(position.unRealizedProfit) >= 0 ? '#4CAF50' : '#dc3545'}">
                                         ${parseFloat(position.unRealizedProfit).toFixed(5)}
                                     </span>
                                 </div>

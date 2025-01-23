@@ -74,7 +74,6 @@ export class BinanceAPI {
         return response.json();
     }
 
-    // Set leverage for a symbol
     async setLeverage(symbol: string, leverage: number): Promise<any> {
         return this.makeSignedRequest('/fapi/v1/leverage', 'POST', {
             symbol: symbol.toUpperCase(),
@@ -82,7 +81,6 @@ export class BinanceAPI {
         });
     }
 
-    // Get symbol precision info
     private async getSymbolPrecision(symbol: string): Promise<{ pricePrecision: number }> {
         const exchangeInfo = await this.makeSignedRequest('/fapi/v1/exchangeInfo', 'GET');
         const symbolInfo = exchangeInfo.symbols.find((s: any) => s.symbol === symbol.toUpperCase());
@@ -94,11 +92,9 @@ export class BinanceAPI {
         };
     }
 
-    // Open a long position
     async openLongPosition(symbol: string, quantity: string, takeProfitPercent?: number): Promise<BinanceOrder[]> {
         const orders: BinanceOrder[] = [];
         
-        // Place the long order
         const longOrder = await this.makeSignedRequest('/fapi/v1/order', 'POST', {
             symbol: symbol.toUpperCase(),
             side: 'BUY',
@@ -107,13 +103,11 @@ export class BinanceAPI {
         });
         orders.push(longOrder);
 
-        // If take profit is specified, place a take profit order
         if (takeProfitPercent) {
             const position = await this.getPosition(symbol);
             const entryPrice = parseFloat(position.entryPrice);
             const takeProfitPrice = entryPrice * (1 + takeProfitPercent / 100);
             
-            // Get symbol precision
             const { pricePrecision } = await this.getSymbolPrecision(symbol);
             const priceTrimmed = takeProfitPrice.toFixed(pricePrecision);
 
@@ -132,11 +126,9 @@ export class BinanceAPI {
         return orders;
     }
 
-    // Open a short position
     async openShortPosition(symbol: string, quantity: string, takeProfitPercent?: number): Promise<BinanceOrder[]> {
         const orders: BinanceOrder[] = [];
         
-        // Place the short order
         const shortOrder = await this.makeSignedRequest('/fapi/v1/order', 'POST', {
             symbol: symbol.toUpperCase(),
             side: 'SELL',
@@ -145,13 +137,11 @@ export class BinanceAPI {
         });
         orders.push(shortOrder);
 
-        // If take profit is specified, place a take profit order
         if (takeProfitPercent) {
             const position = await this.getPosition(symbol);
             const entryPrice = parseFloat(position.entryPrice);
             const takeProfitPrice = entryPrice * (1 - takeProfitPercent / 100);
 
-            // Get symbol precision
             const { pricePrecision } = await this.getSymbolPrecision(symbol);
             const priceTrimmed = takeProfitPrice.toFixed(pricePrecision);
 
@@ -170,7 +160,6 @@ export class BinanceAPI {
         return orders;
     }
 
-    // Close a position
     async closePosition(symbol: string): Promise<BinanceOrder> {
         const position = await this.getPosition(symbol);
         const positionAmt = parseFloat(position.positionAmt);
@@ -179,8 +168,6 @@ export class BinanceAPI {
             throw new Error('No position to close');
         }
 
-        // If positionAmt is positive, we need to sell to close
-        // If positionAmt is negative, we need to buy to close
         const side = positionAmt > 0 ? 'SELL' : 'BUY';
         const quantity = Math.abs(positionAmt).toString();
 
@@ -193,7 +180,6 @@ export class BinanceAPI {
         });
     }
 
-    // Get position information
     async getPosition(symbol: string): Promise<BinancePosition> {
         const positions = await this.makeSignedRequest('/fapi/v2/positionRisk', 'GET', {
             symbol: symbol.toUpperCase()
@@ -201,24 +187,15 @@ export class BinanceAPI {
         return positions[0];
     }
 
-    // Get all positions
     async getAllPositions(): Promise<BinancePosition[]> {
         return this.makeSignedRequest('/fapi/v2/positionRisk', 'GET');
     }
 
-    // Close all positions
     async closeAllPositions(): Promise<BinanceOrder[]> {
         const positions = await this.getAllPositions();
         const closingOrders = positions
             .filter(position => parseFloat(position.positionAmt) !== 0)
             .map(position => this.closePosition(position.symbol));
         return Promise.all(closingOrders);
-    }
-
-    // Cancel all open orders for a symbol
-    async cancelAllOrders(symbol: string): Promise<any> {
-        return this.makeSignedRequest('/fapi/v1/allOpenOrders', 'DELETE', {
-            symbol: symbol.toUpperCase()
-        });
     }
 } 

@@ -194,9 +194,9 @@
                             <div>Symbol: ${position.symbol}</div>
                             <div>Side: ${isLong ? 'LONG' : 'SHORT'}</div>
                             <div>Size: ${Math.abs(positionAmt)}</div>
-                            <div>Entry Price: ${parseFloat(position.entryPrice).toFixed(2)}</div>
-                            <div>Mark Price: ${parseFloat(position.markPrice).toFixed(2)}</div>
-                            <div>PNL: ${parseFloat(position.unRealizedProfit).toFixed(4)}</div>
+                            <div>Entry Price: ${parseFloat(position.entryPrice).toFixed(5)}</div>
+                            <div>Mark Price: ${parseFloat(position.markPrice).toFixed(5)}</div>
+                            <div>PNL: ${parseFloat(position.unRealizedProfit).toFixed(5)}</div>
                             <div>Leverage: ${position.leverage}x</div>
                         `;
                         

@@ -1,6 +1,6 @@
 # Binance Trading UI
 
-A TypeScript-based web interface for placing Binance orders with take profit functionality.
+A TypeScript-based web interface for placing Binance orders with take profit functionality. Created with Cursor AI.
 
 ## Setup
 
